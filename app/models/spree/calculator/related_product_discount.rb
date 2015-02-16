@@ -16,12 +16,12 @@ module Spree
 
       return unless eligible?(order)
       total = order.line_items.inject(0) do |total, line_item|
-        relations =  Spree::Relation.where("discount_amount <> 0.0 AND relatable_type = ? AND relatable_id = ?", "Spree::Product", line_item.variant.product.id)
-        discount_applies_to = relations.map {|rel| rel.related_to.master }
+        relations =  Spree::Relation.where("discount_amount <> 0.0 AND relatable_type = ? AND relatable_id = ?", "Spree::Product", line_item.product.id)
+        discount_applies_to = relations.map {|rel| rel.related_to }
 
         order.line_items.each do |li|
-          if discount_applies_to.include? li.variant
-            discount = relations.detect {|rel| rel.related_to.master == li.variant}.discount_amount
+          if discount_applies_to.include? li.product
+            discount = relations.detect {|rel| rel.related_to == li.product}.discount_amount
             total += if li.quantity < line_item.quantity
               (discount * li.quantity)
             else
